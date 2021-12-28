@@ -19,7 +19,7 @@ public class PersonController {
 
     @PostMapping
     public Mono<Void> post(@RequestBody Mono<Person> personMono){
-        return Mono.empty();
+        return personMono.flatMap(personService::insert);
     }
 
     @GetMapping("/{id}")

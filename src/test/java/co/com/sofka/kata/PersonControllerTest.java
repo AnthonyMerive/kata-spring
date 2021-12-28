@@ -3,10 +3,14 @@ package co.com.sofka.kata;
 import co.com.sofka.kata.controller.PersonController;
 import co.com.sofka.kata.repository.PersonRepository;
 import co.com.sofka.kata.service.PersonService;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -16,7 +20,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -38,15 +42,41 @@ class PersonControllerTest {
     private ArgumentCaptor<Person> argumentCaptor;
 
 
-    @Test
-    void post(){
-        var request = Mono.just(new Person());
+    @ParameterizedTest
+    @CsvSource(
+            {"Raul Alzate,0",
+                    "Raul Alzate,1"})
+    void post(String name, Integer times){
+
+        if(times == 0) {
+            when(repository.findByName(name)).thenReturn(Mono.just(new Person()));
+        }
+
+        if(times == 1) {
+            when(repository.findByName(name)).thenReturn(Mono.empty());
+        }
+
+        var request = Mono.just(new Person(name));
+
+        when(repository.save(any())).thenReturn(Mono.empty());
+        // when(repository.findByName(name)).thenReturn(Mono.empty());
+        // when(repository.findByName(name)).thenReturn(Mono.just(new Person(name)));
+
         webTestClient.post()
                 .uri("/person")
                 .body(request, Person.class)
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody().isEmpty();
+
+        verify(personService).insert(argumentCaptor.capture());
+        verify(repository).findByName(name);
+        verify(repository, Mockito.times(times)).save(any());
+
+
+        var person = argumentCaptor.getValue();
+        Assertions.assertEquals(name, person.getName());
+
     }
 
     @Test
@@ -114,7 +144,7 @@ class PersonControllerTest {
 
         verify(personService).listAll();
         verify(repository).findAll();
-        //TODO: aplicar el captor aqui
+
     }
 
 
