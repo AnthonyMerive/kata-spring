@@ -112,20 +112,6 @@ class PersonControllerTest {
                 .expectBody().isEmpty();
     }
 
-/*
-    @Test
-    void list(){
-        webTestClient.get()
-                .uri("/person")
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody()
-                .jsonPath("$[0].name").isEqualTo("Raul Alzate")
-                .jsonPath("$[1].name").isEqualTo("Pedro");
-    }
-
- */
-
     @Test
     void list() {
         var list = Flux.just(

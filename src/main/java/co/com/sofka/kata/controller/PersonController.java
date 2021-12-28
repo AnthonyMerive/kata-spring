@@ -3,12 +3,9 @@ package co.com.sofka.kata.controller;
 import co.com.sofka.kata.Person;
 import co.com.sofka.kata.service.PersonService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-import java.util.List;
 
 @RestController
 @RequestMapping(value = "/person")
@@ -36,17 +33,6 @@ public class PersonController {
     public Mono<Void> delete(@PathVariable("id") String id){
         return Mono.empty();
     }
-
-    /*
-    @GetMapping
-    public Flux<Person> list (){
-        var persons = List.of(
-                new Person("Raul Alzate"),
-                new Person("Pedro")
-        );
-        return Flux.fromStream(persons.stream());
-    }
-     */
 
     @GetMapping
     public Flux<Person> list(){
